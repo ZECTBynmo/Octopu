@@ -1,0 +1,17 @@
+<h1>Machine Overview</h1>
+
+<ul>
+    <% _.each( machines, function(info, iMachine) { %>
+        <li>
+            <div>
+                <h2><%- info.name %></h2>
+                <hr>
+                <div class="span6">
+                    Status: <%- info.status %>
+                </div>
+                <br><br><br>
+            </div>
+        </li>        
+    <% }); %>  
+</ul>
+

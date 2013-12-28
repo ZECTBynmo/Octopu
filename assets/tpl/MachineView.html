@@ -1,0 +1,67 @@
+<div class="row-fluid">
+    <div class="hero-unit centered">
+        <h1><%= name %></h1>
+        <h5><%= team %> team</h5>
+    </div>
+    <div class="span5">
+        <h2>Current Status</h2>
+        <% _.each( status.running, function(status, scriptName) { %>
+            <% if( status === "running" ) { %>
+                <div class="alert alert-info">
+                    <h4>
+                        <div class="span2">
+                            <img src="img/buildrunning.png" height="42" width="42">
+                        </div>
+
+                        <%= scriptName %>                        
+
+                        <button type="button" class="btn btn-default btn-lg" centered>
+                            <span class="glyphicon glyphicon-volume-off"></span> Cancel
+                        </button>
+                    </h4>
+                </div>
+            <% } else if( status === "failed" ) { %>
+                <div class="alert alert-danger">
+                    <h4>
+                        <div class="span2">
+                            <img src="img/buildfailed.png" height="42" width="42">
+                        </div>
+
+                        <%= scriptName %>
+
+                        <button type="button" class="btn btn-default btn-lg">
+                            <span class="glyphicon glyphicon-volume-off"></span> Restart
+                        </button>
+                    </h4>
+                </div>
+            <% } else if( status === "success" ) { %>
+                <div class="alert alert-success">
+                    <h4>
+                        <div class="span2">
+                            <img src="img/buildsuccess.png" height="42" width="42">
+                        </div>
+
+                        <%= scriptName %>
+                        
+                        <button type="button" class="btn btn-default btn-lg" centered>
+                            <span class="glyphicon glyphicon-volume-off"></span> Restart
+                        </button>
+                    </h4>
+                </div>
+            <% } %>
+        <% }); %>
+    </div>
+
+    <div class="span2"></div>
+
+    <div class="span4">
+        <h2>Start New Build</h2>
+        <div class="btn dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Select build preset<b class="caret"></b></a>
+            <ul class="dropdown-menu">
+
+                <li class="divider"></li>
+                <li><a href="/preset"><i class="icon-off"></i>New Preset</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
