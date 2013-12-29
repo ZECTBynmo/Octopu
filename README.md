@@ -1,12 +1,12 @@
+# Octopu
+
+Octopu is a node.js build system. It allows you to easily spin up build machines, kick off builds, and manage various aspects of your build machines from a simple interface.
+
 ## Installation
 
 ```
 npm install -g octopu
 ```
-
-# Summary
-
-Octopu is a node.js build system. It has two parts:
 
 ### Build Manager
 
