@@ -41,14 +41,24 @@ default:
 
 
 function launchApp( args, contents ) {
+	var strFakePath = "";
 
 	if( args[0] == "starter" ) {
 		process.chdir( __dirname + "/starter" );
+		strFakePath = __dirname + "/starter.app.js";
 	} else if( args[0] == "manager" ) {
 		process.chdir( __dirname + "/manager" );
+		strFakePath = __dirname + "/manager.app.js";
 	}
 
-	require('sails').lift( require('optimist').argv, function(error, sails) {
-		
+	console.log( require('optimist').argv )
+
+	var fakeArgs = {
+		"_": [],
+		'$0': strFakePath
+	}
+
+	require('sails').lift( fakeArgs, function(error, sails) {
+
 	});
 }
