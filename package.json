@@ -1,8 +1,7 @@
 {
-  "name": "Octopu",
-  "private": true,
+  "name": "octopu",
   "version": "0.0.0",
-  "description": "",
+  "description": "Flexible build system written in node.js",
   "dependencies": {
     "sails": "~0.9.8",
     "grunt": "0.4.1",
