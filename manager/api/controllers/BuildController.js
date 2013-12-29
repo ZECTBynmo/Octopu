@@ -22,4 +22,8 @@ module.exports = {
 	    // Make view
 	    res.view( {"machines": machines} );
 	},  
+
+	build: function( req, res ) {
+		res.json( 200, {} );
+	}
 };
