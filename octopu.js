@@ -36,15 +36,11 @@ case "launch":
   	break;
 
 default:
-  	console.log( "Action " + action + " is not recognized" );
+  	console.log( "Action " + action + " is not recognized. Try 'launch'" );
 }
 
 
 function launchApp( args, contents ) {
-	console.log( __dirname );
-	console.log( __dirname );
-	console.log( __dirname );
-	console.log( __dirname );
 
 	if( args[0] == "starter" ) {
 		process.chdir( __dirname + "/starter" );
@@ -52,5 +48,7 @@ function launchApp( args, contents ) {
 		process.chdir( __dirname + "/manager" );
 	}
 
-	require('sails').lift( require('optimist').argv );
+	require('sails').lift( require('optimist').argv, function(error, sails) {
+		
+	});
 }
