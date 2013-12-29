@@ -2,19 +2,18 @@
   "name": "Octopu",
   "private": true,
   "version": "0.0.0",
-  "description": "a Sails application",
+  "description": "",
   "dependencies": {
-    "sails": "0.9.8",
+    "sails": "~0.9.8",
     "grunt": "0.4.1",
     "sails-disk": "~0.9.0",
     "ejs": "0.8.4",
     "optimist": "0.3.4"
   },
-  "scripts": {
-    "start": "node app.js",
-    "debug": "node debug app.js"
+  "bin": {
+    "octopu": "./octopu.js"
   },
-  "main": "app.js",
+  "main": "./octopu",
   "repository": "",
   "author": "Mike Vegeto (michael.vegeto@gmail.com)",
   "license": "MIT",

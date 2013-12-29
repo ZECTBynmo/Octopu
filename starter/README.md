@@ -1,0 +1,2 @@
+# starter
+### a Sails application

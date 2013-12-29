@@ -32,8 +32,9 @@ module.exports.routes = {
   // located at `views/home/index.ejs`
   // 
   // (This would also work if you had a file at: `/views/home.ejs`)
-  '/': 'BuildMachineController.index',
-  '/buildmachines': 'BuildMachineController.machine',
+  '/': {
+    view: 'home/index'
+  }
 
   /*
   // But what if you want your home page to display
@@ -52,7 +53,7 @@ module.exports.routes = {
 
   // Alternatively, you can use the more verbose syntax:
   '/': {
-    controller: 'BuildMachineController',
+    controller: 'MessageController',
     action: 'inbox'
   }
 

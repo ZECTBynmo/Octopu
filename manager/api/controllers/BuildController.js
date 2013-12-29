@@ -1,5 +1,5 @@
 /**
- * BuildMachineController
+ * BuildController
  *
  * @module      :: Controller
  * @description	:: A set of functions called `actions`.
@@ -15,43 +15,11 @@
  * @docs        :: http://sailsjs.org/#!documentation/controllers
  */
 
-var machines = [
-	{
-		name: "studio-x107-b01",
-		status: "running",
-	},
-	{
-		name: "studio-x107-b02",
-		status: "running",
-	},
-	{
-		name: "studio-w7-b01",
-		status: "stopped",
-	},
-	{
-		name: "studio-w7-b02",
-		status: "running",
-	},
-	{
-		name: "creative-w7-b01",
-		status: "running",
-	},
-];
-
 module.exports = {
-    /**
-     * Taskboard main action.
-     *
-     * @param   {Request}   req Request object
-     * @param   {Response}  res Response object
-     */
-    index: function( req, res ) {
 
-        // Make view
-        res.view( {"machines": machines} );
-    },
+  	index: function( req, res ) {
 
-    machine: function( req, res ) {
-    	res.view( {"poop":"poop"} );
-    }
+	    // Make view
+	    res.view( {"machines": machines} );
+	},  
 };

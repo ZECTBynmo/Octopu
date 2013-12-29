@@ -4,7 +4,7 @@
     <% _.each( machines, function(info, iMachine) { %>
         <li>
             <div>
-                <h2><%- info.name %></h2>
+                <a href="/machines/<%- info.name %>"><h2><%- info.name %></h2></a>
                 <hr>
                 <div class="span6">
                     Status: <%- info.status %>
