@@ -51,8 +51,6 @@ function launchApp( args, contents ) {
 		strFakePath = __dirname + "/manager.app.js";
 	}
 
-	console.log( require('optimist').argv )
-
 	var fakeArgs = {
 		"_": [],
 		'$0': strFakePath
