@@ -30,6 +30,7 @@ for( var iArg in argv ) {
 	}
 } // end for each argument
 
+
 switch( action ) {
 case "launch":
 	launchApp( actionArgs, argContents );
@@ -57,6 +58,6 @@ function launchApp( args, contents ) {
 	}
 
 	require('sails').lift( fakeArgs, function(error, sails) {
-
+		
 	});
 }
