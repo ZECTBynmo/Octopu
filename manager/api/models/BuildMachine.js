@@ -20,6 +20,11 @@ module.exports = {
             type:       'string',
             required:   true,
         },
+
+        "alive": {
+            type:       'date',
+            required:   false,
+        },
 	}
 
 };

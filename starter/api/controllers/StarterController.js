@@ -15,6 +15,41 @@
  * @docs        :: http://sailsjs.org/#!documentation/controllers
  */
 
+var fs = require("fs"),
+	request = require("request"),
+	io = require("socket.io-client"),
+	xhrOriginal = require("xmlhttprequest"),
+	xhr = require("socket.io-client/node_modules/xmlhttprequest");
+
+var myUrl = 'http://localhost:1337',
+	cookieJar = request.jar(),
+	isRunning = false;
+
+xhr.XMLHttpRequest = function() {
+	this.XMLHttpRequest = xhrOriginal.XMLHttpRequest;
+	xhrOriginal.XMLHttpRequest.apply(this, arguments);
+	this.setDisableHeaderCheck(true); // Allow header modifications.
+	
+	// Rewrite the 'open' function.
+	var openOriginal = this.open;
+	this.open = function(method, url, async, user, password) {
+		openOriginal.apply(this, arguments);
+		var header = cookieJar.get({url: myUrl}).map(function(cookie) {
+			return cookie.name + '=' + cookie.value;
+		}).join('; ');
+		this.setRequestHeader('cookie', header);
+	};
+};
+
+
+try { 
+	var config = require("./config.json");
+	connectToManager( config.url );
+} catch( error ) {
+
+}
+
+
 module.exports = {
     
  	index: function( req, res ) {
@@ -22,6 +57,17 @@ module.exports = {
     },
 
     setConfig: function( req, res ) {
+    	var config = {
+    		url: req.body.url
+    	}
+
+    	try {
+    		fs.writeFileSync( "./config.json", JSON.stringify(config) );
+    	} catch( error ) {
+
+    	}
+
+		connectToManager( config.url );    	
 
     	var responseObj = {
     		"error": undefined,
@@ -32,3 +78,41 @@ module.exports = {
     }
   
 };
+
+
+function connectToManager( url ) {
+	console.log( "Connecting to manager at: " + url );
+	console.log( isRunning );
+
+	if( isRunning || url === undefined )
+		return;
+
+	isRunning = true;
+
+	// Send the cookie first before attempting to connect via socket-io,
+	// thus, avoiding the handshake error.
+	request.post({jar: cookieJar, url: url}, function(err, resp, body) {
+
+		var socket = io.connect( myUrl, {reconnect: true} );
+		socket.on('connecting', function() {
+			console.log('(II) Connecting to server');
+		});
+
+		socket.on('connect', function() {
+			console.log('(II) Successfully connected to server');
+
+			setInterval( function() {
+				socket.emit( "alive", {name: require("os").hostname()} );
+			}, 1000 );
+		});
+
+		socket.on('error', function(reason) {
+			console.log('(EE) Error connecting to server: ' + reason);
+		});
+
+		socket.on('disconnect', function(reason) {
+			console.log('(II) Disconnected from server\n');
+		});
+
+	});
+}

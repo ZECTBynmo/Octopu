@@ -1,3 +1,5 @@
+var hasSetupSockets = false;
+
 var machines = {
 	"studio-x107-b01": {
 		name: "studio-x107-b01",
@@ -33,12 +35,14 @@ var builds = [
 module.exports = {
 
     index: function( req, res ) {
+    	setupSockets( sails.io.sockets );
 
         // Make view
         res.view( {"machines": machines} );
     },
 
     machine: function( req, res ) {
+    	setupSockets( sails.io.sockets );
 
     	var name = req.params.name,
     		machine = machines[name];
@@ -56,3 +60,43 @@ module.exports = {
     	res.json( 200, {} );
     }
 };
+
+
+function setupSockets( sockets ) {
+	if( hasSetupSockets )
+		return;
+
+	hasSetupSockets = true;
+
+	sockets.on( "connection", function(socket) {
+		socket.on( "alive", function( data ) {
+			BuildMachine.find()
+				.where({ name: data.name })
+				.exec(function(err, users) {
+
+				console.log( "Finding user with name " + data.name );
+
+				if( err != null ) {
+					return console.log( "Error: " + err );
+				} else {
+					if( users.length == 0 ) {
+						BuildMachine.create({
+							name: data.name,
+							status: "stopped",
+						}).done( function(err, machine) {
+							if( err ) {
+								console.log( "Error: " + err );
+							} else {
+								console.log( "Created machine: " + machine );
+							}
+						});
+					} else {
+						console.log( "Found this stuff: " );
+						console.log( users );
+					}
+				}
+				
+			});
+		});
+	});
+}
