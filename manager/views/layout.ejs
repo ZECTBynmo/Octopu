@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <!--
         For demonstration purposes, the `title` is dynamically set here based on
         your `sails.config.appName` to show that you can inject data into layouts
@@ -101,15 +101,58 @@
             <h4>
                 Available Build Machines
             </h4>
-            <ul>
+            <ul class="machine-list">
                 <% _.each( machines, function(info, iMachine) { %>
-                    <li class="sprite single_page">
-                        <a href="/machines/<%- info.name %>"><%- info.name %></a>
-                    </li>
-                <% }); %>
+                    <% if( !info.expired ) { %>
+                        <li class="sprite single_page">
+                            <a href="/machines/<%- info.name %>"><%- info.name %></a>
+                        </li>
+                    <% } %>
+                <% }); %> 
             </ul>
         </div>
     </div>
+
+    <script>
+
+        socket.on( "update", function(data) {
+            updateMachineList( data.machines );
+            updateMachineOverview( data.machines );
+        });
+
+        function updateMachineList( machines ) {
+
+            var strHtml = "";
+
+            for( var iMachine in machines ) {
+                if( machines[iMachine].expired ) {
+                    continue;
+                }                        
+
+                var machine = machines[iMachine];
+                strHtml += '<li class="sprite single_page"><a href="/machines/' + machine.name + '">' + machine.name + '</a></li>'
+            }
+
+            $(".machine-list").html( strHtml );
+        }
+
+        function updateMachineOverview( machines ) {
+
+            var strHtml = "";
+
+            for( var iMachine in machines ) {
+                if( machines[iMachine].expired ) {
+                    continue;
+                }                        
+
+                var machine = machines[iMachine];
+                strHtml += '<li><div><a href="/machines/' + machine.name + '"><h2>' + machine.name + '</h2></a><div class="span6">Status: ' + machine.status + '</div><br><br><br></div></li>';
+            }
+
+            $(".machine-overview").html( strHtml );
+        }
+
+    </script>
 
     <!--
 
