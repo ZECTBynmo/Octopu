@@ -25,10 +25,10 @@ module.exports = {
 
     	var machineName = req.params.name;
 
-    	BuildMachine.find()
-			.done(function( error, machines ) {
+    	AllModels.find(function( error, data ) {
+    		var machines = data.machines,
+    			builds = data.builds;
 
-			var iThisMachine;
 			for( var iMachine in machines ) {
 				if( machines[iMachine].name == machineName ) {
 					machine = machines[iMachine];
@@ -43,7 +43,7 @@ module.exports = {
 			}
 
     		res.view( responseObj );
-		});   
+		});
     },
 
     get: function( req, res ) {
