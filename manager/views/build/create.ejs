@@ -1,0 +1,48 @@
+<div class="container">
+	<div class="row">
+        <div class="span6">
+            <h2 class="well">Create a new build task</h2>
+    		<form action="/builds/post" method="post" class="form-horizontal" id="billingform" accept-charset="utf-8">
+    			<div class="control-group">
+    				<label for="name" class="control-label">	
+    					Name 
+    				</label>
+    				<div class="controls">
+    					<input name="name" type="text" value="" id="email">
+    					<span class="help-inline"> The name of the new build preset</span>
+    				</div>
+    			</div>
+
+                <div class="control-group">
+                    <label for="country" class="control-label"> 
+                        Type
+                    </label>
+                    <div class="controls">
+                        <select name="type" id="type">
+                            <option value="exec">exec</option>
+                        </select>
+                        <span class="help-inline"> </span>
+                    </div>
+                </div>
+     
+    			<div class="control-group">
+    				<label for="data" class="control-label">	
+    					Shell Command
+    				</label>
+    				<div class="controls"><input name="data" placeholder="C:/test.exe" type="text" value="C:/test.exe" id="data"><span class="help-inline"> Command to be executed from the starter</span>
+    				</div>
+    			</div>
+     
+    			<div class="form-actions">
+    				<button type="submit" class="btn btn-large btn-primary">Create Build</button>
+    			</div>
+    		</form>
+    	</div> <!-- .span8 -->
+	</div>
+</div>
+
+<script>
+    $("#type").change( function() {
+        console.log( "data" );
+    });
+</script>

@@ -1,0 +1,18 @@
+<h1>List of builds</h1>
+
+<ul class="machine-overview">
+    <% _.each( builds, function(info, iMachine) { %>
+        <% if( !info.expired ) { %>
+            <li>
+                <div>
+                    <a href="/machines/<%- info.name %>"><h2><%- info.name %></h2></a>
+                    <div class="span6">
+                        Status: <%- info.status %>
+                    </div>
+                    <br><br><br>
+                </div>
+            </li>        
+        <% } %>
+    <% }); %>  
+</ul>
+
