@@ -19,9 +19,51 @@ module.exports = {
 
   	index: function( req, res ) {
 
-	    // Make view
-	    res.view( {"machines": machines} );
+  		BuildMachine.find()
+			.done(function( error, machines ) {
+
+			Build.find()
+				.done(function( error, builds ) {
+
+				var responseData = {
+					"machines": machines,
+					"builds": builds
+				}
+			
+				res.view( responseData );
+			})        	
+		});  
+
 	},  
+
+	create: function( req, res ) {
+
+		AllModels.find( function(error, data) {
+
+			res.view( data );
+		});
+	},
+
+	post: function( req, res ) {
+
+		var newBuild = {
+			name: req.body.name,
+			type: req.body.type,
+			data: req.body.data,
+		}
+
+		console.log( newBuild );
+
+		Build.create(newBuild).done( function(err, machine) {
+			if( err ) {
+				console.log( "Error: " + JSON.stringify(err) );
+			} else {
+				console.log( "Created machine: " + machine );
+			}
+
+			res.json( 200, {} );
+		});
+	},
 
 	build: function( req, res ) {
 		res.json( 200, {} );
