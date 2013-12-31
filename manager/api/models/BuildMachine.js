@@ -25,6 +25,12 @@ module.exports = {
             type:       'date',
             required:   false,
         },
+
+        "expired": {
+            type:       'boolean',
+            required:   true,
+            defaultsTo: false
+        },
 	}
 
 };
