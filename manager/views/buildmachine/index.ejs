@@ -1,17 +1,18 @@
 <h1>Machine Overview</h1>
 
-<ul>
+<ul class="machine-overview">
     <% _.each( machines, function(info, iMachine) { %>
-        <li>
-            <div>
-                <a href="/machines/<%- info.name %>"><h2><%- info.name %></h2></a>
-                <hr>
-                <div class="span6">
-                    Status: <%- info.status %>
+        <% if( !info.expired ) { %>
+            <li>
+                <div>
+                    <a href="/machines/<%- info.name %>"><h2><%- info.name %></h2></a>
+                    <div class="span6">
+                        Status: <%- info.status %>
+                    </div>
+                    <br><br><br>
                 </div>
-                <br><br><br>
-            </div>
-        </li>        
+            </li>        
+        <% } %>
     <% }); %>  
 </ul>
 
