@@ -1,31 +1,6 @@
-var hasSetupSockets = false;
+var async = require("async");
 
-var machines = {
-	"studio-x107-b01": {
-		name: "studio-x107-b01",
-		status: "running",
-	},
-	"studio-x107-b02": {
-		name: "studio-x107-b02",
-		status: "running",
-	},
-	"studio-w7-b01": {
-		name: "studio-w7-b01",
-		status: "stopped",
-	},
-	"studio-w7-b02": {
-		name: "studio-w7-b02",
-		status: "running",
-	},
-	"creative-x107-b01": {
-		name: "creative-x107-b01",
-		status: "running",
-	},
-	"creative-w7-b01": {
-		name: "creative-w7-b01",
-		status: "running",
-	},
-};
+var hasSetupSockets = false;
 
 var builds = [
 	"first.exe",
@@ -37,23 +12,49 @@ module.exports = {
     index: function( req, res ) {
     	setupSockets( sails.io.sockets );
 
-        // Make view
-        res.view( {"machines": machines} );
+    	BuildMachine.find()
+			.done(function( error, machines ) {
+
+			// Make view
+        	res.view( {"machines": machines} );
+		});        
     },
 
     machine: function( req, res ) {
     	setupSockets( sails.io.sockets );
 
-    	var name = req.params.name,
-    		machine = machines[name];
+    	var machineName = req.params.name;
 
-		var responseObj = {
-			"machines": machines,
-			"machine": machine,
-			"builds": builds,
-		}
+    	BuildMachine.find()
+			.done(function( error, machines ) {
 
-    	res.view( responseObj );
+			var iThisMachine;
+			for( var iMachine in machines ) {
+				if( machines[iMachine].name == machineName ) {
+					machine = machines[iMachine];
+					break;
+				}
+			}
+
+			var responseObj = {
+				"machines": machines,
+				"machine": machine,
+				"builds": builds,
+			}
+
+    		res.view( responseObj );
+		});   
+    },
+
+    get: function( req, res ) {
+    	setupSockets( sails.io.sockets );
+
+    	BuildMachine.find()
+			.done(function( error, machines ) {
+
+			// Make view
+        	res.json( {"machines": machines} );
+		});
     },
 
     keepalive: function( req, res ) {
@@ -68,32 +69,117 @@ function setupSockets( sockets ) {
 
 	hasSetupSockets = true;
 
+	function updateClientsOnChange() {
+		BuildMachine.find()
+		.done(function( error, machines ) {
+			var updateData = {
+				machines: machines
+			}
+
+	    	sockets.emit( "update", updateData );
+		});
+	}
+
+	var keepaliveTime = 2000;
+
+	// We're going to setup a repeating check to make sure
+	// machines that have signed up are still present.
+	setInterval( function() {
+
+		BuildMachine.find()
+					.done(function( error, machines ) {
+
+			async.eachSeries( machines, function( machine, callback ) {
+			  	
+			  	var timeSinceKeepalive = new Date() - new Date( machine.alive );
+
+			  	if( machine.alive == undefined || timeSinceKeepalive > keepaliveTime ) {
+			  		
+			  		BuildMachine.update({
+				  		name: machine.name
+					}, {
+						expired: true
+					}, function( err, machines ) {
+						if( err ) {
+					 	  	console.log( err );
+					 	  	callback( err );
+					 	} else {
+					 	  	updateClientsOnChange();
+						  	callback();
+						}
+					});
+			  	} else {
+			  		callback();
+			  	}
+
+			}, function( err ) {
+			  	if( err ) { 
+			  		console.log( err ); 
+			  	}
+			  	
+			  	console.log( 'Finished removing expired machines' );
+			});
+		});
+
+	}, keepaliveTime );
+
+
 	sockets.on( "connection", function(socket) {
+
 		socket.on( "alive", function( data ) {
 			BuildMachine.find()
 				.where({ name: data.name })
-				.exec(function(err, users) {
+				.exec( function(err, machines) {
 
 				console.log( "Finding user with name " + data.name );
 
 				if( err != null ) {
 					return console.log( "Error: " + err );
 				} else {
-					if( users.length == 0 ) {
-						BuildMachine.create({
+
+					if( machines.length == 0 ) {
+
+						var newMachine = {
 							name: data.name,
 							status: "stopped",
-						}).done( function(err, machine) {
+							alive: new Date(),
+							expired: false,
+						}
+
+						// Create a new user with a fresh keepalive timestamp
+						BuildMachine.create(newMachine).done( function(err, machine) {
 							if( err ) {
 								console.log( "Error: " + err );
 							} else {
 								console.log( "Created machine: " + machine );
 							}
 						});
+
+						updateClientsOnChange();
+
+					} else if( machines.length == 1 ) {
+
+						var wasExpired = machines[0].expired;
+
+						BuildMachine.update({
+					  		name: data.name
+						}, {
+							alive: new Date(),
+							expired: false
+						}, function( err, machines ) {
+
+							// Update the client if something changed
+							if( wasExpired ) {
+								updateClientsOnChange();
+							}
+
+							console.log( "Updated machine timestamp" );
+						});
+
 					} else {
-						console.log( "Found this stuff: " );
-						console.log( users );
+						console.log( "Something went wrong, more than one user found" );
 					}
+					
 				}
 				
 			});
