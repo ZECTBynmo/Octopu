@@ -40,6 +40,9 @@ module.exports.routes = {
   '/machines/alive': 'BuildMachineController.keepalive',
 
   '/builds': 'BuildController.index',
+  '/builds/post': 'BuildController.post',
+  '/builds/create': 'BuildController.create',
+  
   '/builds/:name': 'BuildController.build',
 
   /*
