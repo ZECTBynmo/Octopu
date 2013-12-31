@@ -35,6 +35,7 @@ module.exports.routes = {
   '/': 'BuildMachineController.index',
 
   '/machines': 'BuildMachineController.index',
+  '/machines/get': 'BuildMachineController.get',
   '/machines/:name': 'BuildMachineController.machine',
   '/machines/alive': 'BuildMachineController.keepalive',
 
