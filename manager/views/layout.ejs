@@ -95,7 +95,7 @@
             </h4>
             <ul>
                 <li class="">
-                    <a href="/builds/">Build List</a>
+                    <a href="/builds/">Available Builds</a>
                 </li>
                 <li class="">
                     <a href="/builds/create">Create New Build</a>
@@ -119,8 +119,11 @@
     <script>
 
         socket.on( "update", function(data) {
+            console.log( "Updating" );
+
             updateMachineList( data.machines );
             updateMachineOverview( data.machines );
+            updateMachineBuilds( data.builds );
         });
 
         function updateMachineList( machines ) {
@@ -153,6 +156,18 @@
             }
 
             $(".machine-overview").html( strHtml );
+        }
+
+        function updateMachineBuilds( builds ) {
+            var strHtml = "";
+
+            for( var iBuild in builds ) {                 
+                strHtml += '<li>' + builds[iBuild].name + '</li>';
+            }
+
+            console.log( builds );
+
+            $(".machine-build-list").html( strHtml );
         }
 
     </script>
