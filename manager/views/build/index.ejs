@@ -1,18 +1,33 @@
-<h1>List of builds</h1>
+<h1>Available builds</h1>
 
-<ul class="machine-overview">
-    <% _.each( builds, function(info, iMachine) { %>
-        <% if( !info.expired ) { %>
+<ul>
+    <% _.each( builds, function(build, iBuild) { %>
+        <% if( !build.expired ) { %>
             <li>
-                <div>
-                    <a href="/machines/<%- info.name %>"><h2><%- info.name %></h2></a>
-                    <div class="span6">
-                        Status: <%- info.status %>
+                <div class="well">
+                    <div class="span2">
+                        <a href="/builds/edit/<%- build.name %>"><h4 class="build-name"><%- build.name %></h4></a>
                     </div>
-                    <br><br><br>
+                    <div class="span2">
+                        Type: <u><%- build.type %></u>
+                    </div>
+                    <div class="span1 pull-right">
+                        <button class="btn delete-btn" type="button">delete</button>
+                    </div>
                 </div>
             </li>        
         <% } %>
     <% }); %>  
 </ul>
 
+<script>
+    $('.delete-btn').click( function(event) {
+        var path = "/builds/delete/" + $(".build-name").eq( $(this).parent().index() ).text();
+
+        console.log( path );
+        
+        socket.get( path, function(data) {
+            console.log( data );
+        });
+    });
+</script>
