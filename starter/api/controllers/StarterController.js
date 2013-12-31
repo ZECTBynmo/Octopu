@@ -43,7 +43,7 @@ xhr.XMLHttpRequest = function() {
 
 
 try { 
-	var config = require("./config.json");
+	var config = require( __dirname + "/config.json");
 	connectToManager( config.url );
 } catch( error ) {
 
@@ -62,12 +62,12 @@ module.exports = {
     	}
 
     	try {
-    		fs.writeFileSync( "./config.json", JSON.stringify(config) );
+    		fs.writeFileSync( __dirname + "/config.json", JSON.stringify(config) );
     	} catch( error ) {
-
+    		console.log( error );
     	}
 
-		connectToManager( config.url );    	
+		connectToManager( config.url );
 
     	var responseObj = {
     		"error": undefined,
@@ -81,13 +81,13 @@ module.exports = {
 
 
 function connectToManager( url ) {
-	console.log( "Connecting to manager at: " + url );
-	console.log( isRunning );
 
 	if( isRunning || url === undefined )
 		return;
 
 	isRunning = true;
+
+	console.log( "Connecting to manager at: " + url );
 
 	// Send the cookie first before attempting to connect via socket-io,
 	// thus, avoiding the handshake error.
@@ -108,11 +108,23 @@ function connectToManager( url ) {
 
 		socket.on('error', function(reason) {
 			console.log('(EE) Error connecting to server: ' + reason);
+			isRunning = false;
 		});
 
 		socket.on('disconnect', function(reason) {
 			console.log('(II) Disconnected from server\n');
+			isRunning = false;
 		});
 
 	});
 }
+
+
+setInterval( function() {
+	try { 
+		var config = require("./config.json");
+		connectToManager( config.url );
+	} catch( error ) {
+		console.log( error );
+	}
+}, 1000 );
