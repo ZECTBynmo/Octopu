@@ -2,11 +2,6 @@ var async = require("async");
 
 var hasSetupSockets = false;
 
-var builds = [
-	"first.exe",
-	"second.exe",
-];
-
 module.exports = {
 
     index: function( req, res ) {
@@ -26,8 +21,7 @@ module.exports = {
     	var machineName = req.params.name;
 
     	AllModels.find(function( error, data ) {
-    		var machines = data.machines,
-    			builds = data.builds;
+    		var machines = data.machines;
 
 			for( var iMachine in machines ) {
 				if( machines[iMachine].name == machineName ) {
@@ -39,11 +33,30 @@ module.exports = {
 			var responseObj = {
 				"machines": machines,
 				"machine": machine,
-				"builds": builds,
+				"builds": data.builds,
 			}
 
     		res.view( responseObj );
 		});
+
+//    	BuildMachine.find()
+//			.done(function( error, machines ) {
+//
+//			for( var iMachine in machines ) {
+//				if( machines[iMachine].name == machineName ) {
+//					machine = machines[iMachine];
+//					break;
+//				}
+//			}
+//
+//			var responseObj = {
+//				"machines": machines,
+//				"machine": machine,
+//				"builds": builds,
+//			}
+//
+//    		res.view( responseObj );
+//		});   
     },
 
     get: function( req, res ) {
