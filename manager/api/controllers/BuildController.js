@@ -44,6 +44,21 @@ module.exports = {
 		});
 	},
 
+
+	delete: function( req, res ) {
+
+		Build.destroy({
+		  	name: req.params.name
+		}).done(function(err) {
+
+		  	if( err ) {
+		  	 	return console.log( err );
+		  	} else {
+		  	  	console.log("User deleted");
+		  	}
+		});
+	},
+
 	post: function( req, res ) {
 
 		var newBuild = {

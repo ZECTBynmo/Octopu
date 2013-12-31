@@ -41,8 +41,9 @@ module.exports.routes = {
 
   '/builds': 'BuildController.index',
   '/builds/post': 'BuildController.post',
+  '/builds/delete/:name': 'BuildController.delete',
   '/builds/create': 'BuildController.create',
-  
+
   '/builds/:name': 'BuildController.build',
 
   /*
