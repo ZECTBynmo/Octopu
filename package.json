@@ -8,7 +8,8 @@
     "sails-disk": "~0.9.0",
     "ejs": "0.8.4",
     "optimist": "0.3.4",
-    "async": "~0.2.9"
+    "async": "~0.2.9",
+    "spawn-command": "0.0.2"
   },
   "bin": {
     "octopu": "./octopu.js"
