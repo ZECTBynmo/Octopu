@@ -1,24 +1,54 @@
 <div class="well">
-	<h1><%- machine.name %></h1>
-	<h3>Status: <%- machine.status %></h3>
+    <div class="row">
+        <div class="span3">
+            <h1><%- machine.name %></h1>
+            <h3>Status: <%- machine.status %></h3>
+            <button type="submit" class="btn btn-primary restart-build-button">Restart Build</button>
+        </div>
+    </div>
 
-	<ul class="nav nav-tabs">
-      	<li class="active"><a href="#home" data-toggle="tab">Past Builds</a></li>
-      	<li><a href="#profile" data-toggle="tab">profile</a></li>
-    </ul>
+    <div class="row">
+    	<ul class="nav nav-tabs span5">
+            <li class="active"><a href="#info" data-toggle="tab">General</a></li>
+          	<li><a href="#history" data-toggle="tab">Build History</a></li>
+        </ul>
+    </div>
 
     <div id="tabContent" class="tab-content">
-    	<div class="tab-pane active in" id="home">
-            <ul class="machine-build-list">
+    	<div class="tab-pane active in" id="info">
+            <div class="span2">
+                <button type="submit" class="btn">Launch Build</button>
+            </div>
+
+            <div class="span3">
+                <select name="type" id="type">
+                    <% _.each( builds, function(info, iBuild) { %>
+                        <option value="<%- info.name %>"><%- info.name %></option>
+                    <% }); %>
+                </select>
+            </div>
+
+            <div class="span5">
+
+            </div>
+    	</div>
+    	<div class="tab-pane fade" id="history">
+    		<ul class="machine-build-list">
                 <% _.each( builds, function(info, iBuild) { %>
-                    <li>
+                    <li class="well">
                         <%- info.name %>
                     </li>
                 <% }); %>
-            </ul>    		
-    	</div>
-    	<div class="tab-pane fade" id="profile">
-    		profile
+            </ul>       
     	</div>
     </div>
 </div>
+
+<script>
+    $(".restart-build-button").click( function() {
+        socket.post( "/machines/<%- machine.name %>/launch/test", function(data) {
+            console.log( "Response" );
+            console.log( data );
+        });
+    });
+</script>
