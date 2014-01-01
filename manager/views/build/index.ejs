@@ -1,6 +1,6 @@
 <h1>Available builds</h1>
 
-<ul>
+<ul class="build-list">
     <% _.each( builds, function(build, iBuild) { %>
         <% if( !build.expired ) { %>
             <li>
@@ -21,13 +21,16 @@
 </ul>
 
 <script>
-    $('.delete-btn').click( function(event) {
-        var path = "/builds/delete/" + $(".build-name").eq( $(this).parent().index() ).text();
+    $('.delete-btn').live("click", function(event) {
+        event.stopPropagation();
 
-        console.log( path );
+        var iBuild = $(this).parent().parent().parent().index();
+
+        var path = "/builds/delete/" + $(".build-name").eq( iBuild ).text();
         
-        socket.get( path, function(data) {
-            console.log( data );
+        socket.post( path, function(data) {
+            console.log( "Got a response" );
+            updateAll( data );
         });
     });
 </script>

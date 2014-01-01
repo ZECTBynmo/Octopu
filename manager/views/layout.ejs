@@ -95,10 +95,10 @@
             </h4>
             <ul>
                 <li class="">
-                    <a href="/builds/">Available Builds</a>
+                    <a href="/builds/create">Create New Build</a>
                 </li>
                 <li class="">
-                    <a href="/builds/create">Create New Build</a>
+                    <a href="/builds/">Available Builds</a>
                 </li>
             </ul>
             <h4>
@@ -119,12 +119,18 @@
     <script>
 
         socket.on( "update", function(data) {
-            console.log( "Updating" );
+            updateAll( data );
+        });
 
-            updateMachineList( data.machines );
+        function updateAll( data ) {
+            console.log( "Updating" );
+            console.log( data );
+
             updateMachineOverview( data.machines );
             updateMachineBuilds( data.builds );
-        });
+            updateMachineList( data.machines );
+            updateBuildList( data.builds );
+        }
 
         function updateMachineList( machines ) {
 
@@ -168,6 +174,18 @@
             console.log( builds );
 
             $(".machine-build-list").html( strHtml );
+        }
+
+        function updateBuildList( builds ) {
+            var strHtml = "";
+
+            for( var iBuild in builds ) {                 
+                strHtml += '<li><div class="well"><div class="span2"><a href="/builds/edit/' + builds[iBuild].name + '"><h4 class="build-name">' + builds[iBuild].name + '</h4></a></div><div class="span2">Type: <u>' + builds[iBuild].type + '</u></div><div class="span1 pull-right"><button class="btn delete-btn" type="button">delete</button></div></div></li>';
+            }
+
+            console.log( builds );
+
+            $(".build-list").html( strHtml );
         }
 
     </script>
