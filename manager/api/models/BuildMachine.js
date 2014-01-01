@@ -28,8 +28,8 @@ module.exports = {
 
         "expired": {
             type:       'boolean',
+            defaultsTo: false,
             required:   true,
-            defaultsTo: false
         },
 	}
 
