@@ -19,6 +19,7 @@ var fs = require("fs"),
 	request = require("request"),
 	io = require("socket.io-client"),
 	xhrOriginal = require("xmlhttprequest"),
+	spawnCommand = require('spawn-command'),
 	xhr = require("socket.io-client/node_modules/xmlhttprequest");
 
 var myUrl = 'http://localhost:1337',
@@ -42,13 +43,19 @@ xhr.XMLHttpRequest = function() {
 };
 
 
-try { 
-	var config = require( __dirname + "/config.json");
-	connectToManager( config.url );
-} catch( error ) {
+function tryRequire( path ) {
+	try { 
+		var obj = require( path );
+	} catch( err ) {
+		var obj = {};
+	}
 
+	return obj;
 }
 
+
+var runningBuilds = {},
+	managerSocket;
 
 module.exports = {
     
@@ -56,9 +63,27 @@ module.exports = {
     	res.json( 200, {} );
     },
 
+    launch: function( req, res ) {
+
+    	var command = req.body.command,
+    		name = req.body.name,
+    		config = tryRequire( __dirname + "/config.js" );
+
+    	runningBuilds[name] = spawnCommand( config.dir + "/" + command );
+
+    	runningBuilds[name].on( "exit", function(code) {
+    		if( managerSocket != undefined ) {
+    			managerSocket.emit( "finished", {name:name} );
+    		}
+    	});
+
+    	res.json( 200, {} );
+    },
+
     setConfig: function( req, res ) {
     	var config = {
-    		url: req.body.url
+    		url: req.body.url,
+    		dir: req.body.dir,
     	}
 
     	try {
@@ -71,7 +96,8 @@ module.exports = {
 
     	var responseObj = {
     		"error": undefined,
-    		"url": req.body.url
+    		"url": req.body.url,
+    		"dir": req.body.dir,
     	};
 
     	res.view( responseObj );
@@ -94,6 +120,9 @@ function connectToManager( url ) {
 	request.post({jar: cookieJar, url: url}, function(err, resp, body) {
 
 		var socket = io.connect( myUrl, {reconnect: true} );
+
+		managerSocket = socket;
+
 		socket.on('connecting', function() {
 			console.log('(II) Connecting to server');
 		});
@@ -128,3 +157,11 @@ setInterval( function() {
 		console.log( error );
 	}
 }, 1000 );
+
+
+try { 
+	var config = require( __dirname + "/config.json");
+	connectToManager( config.url );
+} catch( error ) {
+
+}
