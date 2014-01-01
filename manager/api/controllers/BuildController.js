@@ -40,12 +40,13 @@ module.exports = {
 
 		AllModels.find( function(error, data) {
 
-			res.view( data );
+			res.view( "build/create", data );
 		});
 	},
 
 
 	delete: function( req, res ) {
+		console.log( "Deleting" );
 
 		Build.destroy({
 		  	name: req.params.name
@@ -54,7 +55,15 @@ module.exports = {
 		  	if( err ) {
 		  	 	return console.log( err );
 		  	} else {
-		  	  	console.log("User deleted");
+		  	  	console.log("Build deleted");
+
+		  	  	AllModels.find( function(error, data) {
+		  	  		console.log( "Updated with data and stuff" );
+		  	  		console.log( data );
+		  	  		
+		  	  		sails.io.sockets.emit( "update". data );
+		  	  		res.json( "index", data );
+		  	  	});		  	  	
 		  	}
 		});
 	},
@@ -76,7 +85,10 @@ module.exports = {
 				console.log( "Created machine: " + machine );
 			}
 
-			res.json( 200, {} );
+			AllModels.find( function(error, data) {
+				sails.io.sockets.emit( "update". data );
+				res.view( "build/create", data );
+			});
 		});
 	},
 
