@@ -8,11 +8,11 @@ Octopu is a language agnostic build/task execution system. It allows you to easi
 npm install -g octopu
 ```
 
-### Build Manager
+#### Build Manager
 
 A web application that allows you to manage and launch builds on various computers.
 
-#### Usage (from the command line)
+##### Usage (from the command line)
 
 To start up a Build Manager instance on your computer:
 
@@ -22,11 +22,11 @@ octopu launch manager
 
 After that, you should be able to access the Build Manager at http://localhost:1337.
 
-### Build Starter
+#### Build Starter
 
 A web application that interacts with the Build Manager and launches new builds.
 
-#### Usage (from the command line)
+##### Usage (from the command line)
 
 To start up a Build Starter instance on your computer:
 
