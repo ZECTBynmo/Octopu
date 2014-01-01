@@ -83,13 +83,8 @@ function setupSockets( sockets ) {
 	hasSetupSockets = true;
 
 	function updateClientsOnChange() {
-		BuildMachine.find()
-		.done(function( error, machines ) {
-			var updateData = {
-				machines: machines
-			}
-
-	    	sockets.emit( "update", updateData );
+		AllModels.find( function(error, data) {
+	    	sockets.emit( "update", data );
 		});
 	}
 
@@ -104,7 +99,8 @@ function setupSockets( sockets ) {
 
 			async.eachSeries( machines, function( machine, callback ) {
 			  	
-			  	var timeSinceKeepalive = new Date() - new Date( machine.alive );
+			  	var timeSinceKeepalive = new Date() - new Date( machine.alive ),
+			  		wasExpired = machine.expired;
 
 			  	if( machine.alive == undefined || timeSinceKeepalive > keepaliveTime ) {
 			  		
@@ -117,7 +113,11 @@ function setupSockets( sockets ) {
 					 	  	console.log( err );
 					 	  	callback( err );
 					 	} else {
-					 	  	updateClientsOnChange();
+					 		// If this machine wasn't expired, but now is, update the clients
+					 		if( !wasExpired ) {
+					 	  		updateClientsOnChange();
+					 		}
+
 						  	callback();
 						}
 					});
