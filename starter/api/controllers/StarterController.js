@@ -54,6 +54,28 @@ function tryRequire( path ) {
 }
 
 
+function launchBuild( command, name ) {
+	var config = tryRequire( __dirname + "/config.js" );
+
+	// Change the working directory to the config directory if there is one
+	if( config.dir != undefined && config.dir != "" )
+		process.chdir( config.dir );
+
+	// Create a child process
+	console.log( "Starting build" );
+	console.log( "node " + __dirname + "/test.js" );
+	runningBuilds[name] = spawnCommand( "node " + __dirname + "/test.js" );
+
+	// Catch exit events
+	runningBuilds[name].on( "exit", function(code) {
+		console.log( "Build finished" );
+		if( managerSocket != undefined ) {
+			managerSocket.emit( "finished", {name:name} );
+		}
+	});
+}
+
+
 var runningBuilds = {},
 	managerSocket;
 
@@ -66,16 +88,9 @@ module.exports = {
     launch: function( req, res ) {
 
     	var command = req.body.command,
-    		name = req.body.name,
-    		config = tryRequire( __dirname + "/config.js" );
+    		name = req.body.name;
 
-    	runningBuilds[name] = spawnCommand( config.dir + "/" + command );
-
-    	runningBuilds[name].on( "exit", function(code) {
-    		if( managerSocket != undefined ) {
-    			managerSocket.emit( "finished", {name:name} );
-    		}
-    	});
+		launchBuild( command, name );
 
     	res.json( 200, {} );
     },
@@ -119,7 +134,7 @@ function connectToManager( url ) {
 	// thus, avoiding the handshake error.
 	request.post({jar: cookieJar, url: url}, function(err, resp, body) {
 
-		var socket = io.connect( myUrl, {reconnect: true} );
+		var socket = io.connect( url, {reconnect: true} );
 
 		managerSocket = socket;
 
@@ -143,6 +158,10 @@ function connectToManager( url ) {
 		socket.on('disconnect', function(reason) {
 			console.log('(II) Disconnected from server\n');
 			isRunning = false;
+		});
+
+		socket.on('launch', function(data) {
+			launchBuild( data.command, data.name );
 		});
 
 	});

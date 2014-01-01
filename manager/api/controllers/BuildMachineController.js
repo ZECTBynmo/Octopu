@@ -1,6 +1,7 @@
 var async = require("async");
 
-var hasSetupSockets = false;
+var hasSetupSockets = false,
+	machineSockets = {};
 
 module.exports = {
 
@@ -70,6 +71,21 @@ module.exports = {
 		});
     },
 
+    launch: function( req, res ) {
+    	var machineName = req.params.name;
+
+    	console.log( "launching on " + machineName );
+
+    	var launchData = {
+    		command: "sdfxgsadfg",
+    		name: "fffffff",
+    	}
+
+    	machineSockets[machineName].emit( "launch", launchData, function(data) {
+			res.json( 200, {name: machineName} );
+		});    	
+    },
+
     keepalive: function( req, res ) {
     	res.json( 200, {} );
     }
@@ -136,10 +152,12 @@ function setupSockets( sockets ) {
 
 	}, keepaliveTime );
 
-
 	sockets.on( "connection", function(socket) {
 
 		socket.on( "alive", function( data ) {
+
+			machineSockets[data.name] = socket;
+
 			BuildMachine.find()
 				.where({ name: data.name })
 				.exec( function(err, machines) {
