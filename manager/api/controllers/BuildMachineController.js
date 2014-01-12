@@ -1,7 +1,8 @@
 var async = require("async");
 
 var hasSetupSockets = false,
-	machineSockets = {};
+	machineSockets = {},
+	runningBuilds = {};
 
 module.exports = {
 
@@ -66,8 +67,18 @@ module.exports = {
     	BuildMachine.find()
 			.done(function( error, machines ) {
 
-			// Make view
         	res.json( {"machines": machines} );
+		});
+    },
+
+    getMachine: function( req, res ) {
+    	setupSockets( sails.io.sockets );
+
+    	BuildMachine.find()
+			.where({ name: req.params.name })
+			.exec( function(err, machines) {
+
+        	res.json( {"machine": machines[0]} );
 		});
     },
 
@@ -76,13 +87,51 @@ module.exports = {
 
     	console.log( "launching on " + machineName );
 
-    	var launchData = {
-    		command: "sdfxgsadfg",
-    		name: "fffffff",
-    	}
+    	Build.find()
+			.where({ name: req.params.build })
+			.exec( function(err, builds) {
 
-    	machineSockets[machineName].emit( "launch", launchData, function(data) {
-			res.json( 200, {name: machineName} );
+			var launchData = {
+	    		command: builds[0].data,
+	    		name: machineName + "." + req.params.build,
+	    	}
+
+	    	runningBuilds[machineName + "." + req.params.build] = true;
+
+
+	    	BuildMachine.find()
+				.where({ name: machineName })
+				.exec( function(err, machines) {
+
+				var newHistory = machines[0].history;
+
+				var newHistoryItem = {
+					start: new Date(),
+					build: req.params.build
+				}
+
+				if( newHistory === undefined )
+					newHistory = [];
+
+				newHistory.unshift( newHistoryItem );
+
+				BuildMachine.update({
+			  		name: machineName
+				}, {
+					history: newHistory,
+					status: "running"
+				}, function( err, machines ) {
+				
+					AllModels.find( function(error, data) {
+				    	sails.io.sockets.emit( "update", data );
+					});
+
+					machineSockets[machineName].emit( "launch", launchData, function(data) {
+						res.json( 200, {name: machineName} );
+					}); 
+				});
+			}); 
+
 		});    	
     },
 
@@ -145,14 +194,45 @@ function setupSockets( sockets ) {
 			  	if( err ) { 
 			  		console.log( err ); 
 			  	}
-			  	
-			  	console.log( 'Finished removing expired machines' );
 			});
 		});
 
 	}, keepaliveTime );
 
 	sockets.on( "connection", function(socket) {
+
+		socket.on( "finished", function(data) {
+			console.log( "Build finished" );
+
+			var machineName = data.name.split(".")[0]
+
+			runningBuilds[data.name] = false;
+
+			BuildMachine.find()
+				.where({ name: machineName })
+				.exec( function(err, machines) {
+
+				var newHistory = machines[0].history;
+
+				if( newHistory === undefined ) {
+					console.log( "Something went wrong, this machine has no history" );
+				} else {
+					newHistory[0].end = new Date();
+
+					BuildMachine.update({
+				  		name: machineName,
+					}, {
+						history: newHistory,
+						status: "stopped"
+					}, function( err, machines ) {
+					
+						updateClientsOnChange();
+					});
+				}
+				
+			});
+			
+		});
 
 		socket.on( "alive", function( data ) {
 
@@ -161,8 +241,6 @@ function setupSockets( sockets ) {
 			BuildMachine.find()
 				.where({ name: data.name })
 				.exec( function(err, machines) {
-
-				console.log( "Finding user with name " + data.name );
 
 				if( err != null ) {
 					return console.log( "Error: " + err );
@@ -203,8 +281,6 @@ function setupSockets( sockets ) {
 							if( wasExpired ) {
 								updateClientsOnChange();
 							}
-
-							console.log( "Updated machine timestamp" );
 						});
 
 					} else {
