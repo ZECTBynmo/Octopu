@@ -127,9 +127,14 @@
             console.log( data );
 
             updateMachineOverview( data.machines );
-            updateMachineBuilds( data.builds );
             updateMachineList( data.machines );
             updateBuildList( data.builds );
+
+            if( window.location.pathname.split("/").length == 2 && window.location.pathname.split("/")[1] == "machines" ) {
+                updateMachineBuildHistory( window.location.pathname.split("/")[2] );
+            } else if( window.location.pathname.split("/").length == 3 && window.location.pathname.split("/")[1] == "machines" ) {
+                updateMachineStatus( window.location.pathname.split("/")[2], data.machines );
+            }
         }
 
         function updateMachineList( machines ) {
@@ -164,16 +169,30 @@
             $(".machine-overview").html( strHtml );
         }
 
-        function updateMachineBuilds( builds ) {
+        function updateMachineBuildHistory( name ) {
             var strHtml = "";
 
-            for( var iBuild in builds ) {                 
-                strHtml += '<li>' + builds[iBuild].name + '</li>';
-            }
+            socket.get( "/machines/get/" + name, function(data) {
+                var machine = data.machine;
 
-            console.log( builds );
+                for( var iItem in machine.history ) {      
+                    var item = machine.history[iItem];
 
-            $(".machine-build-list").html( strHtml );
+                    if( item.start != undefined )
+                        item.start = new Date(item.start);
+                    else
+                        continue;
+
+                    if( item.end != undefined )
+                        item.end = new Date(item.end);
+                    else
+                        continue;
+
+                    strHtml += '<li class="well"><div class="span1">' + item.build + '</div><div class="span2">Duration: ' + ((item.end - item.start)/60000).toFixed(2) + ' min</div></li>';
+                }
+
+                $(".machine-build-history-list").html( strHtml );
+            });
         }
 
         function updateBuildList( builds ) {
@@ -183,9 +202,20 @@
                 strHtml += '<li><div class="well"><div class="span2"><a href="/builds/edit/' + builds[iBuild].name + '"><h4 class="build-name">' + builds[iBuild].name + '</h4></a></div><div class="span2">Type: <u>' + builds[iBuild].type + '</u></div><div class="span1 pull-right"><button class="btn delete-btn" type="button">delete</button></div></div></li>';
             }
 
-            console.log( builds );
-
             $(".build-list").html( strHtml );
+        }
+
+        function updateMachineStatus( name, machines ) {
+            for( var iMachine in machines ) {
+                if( machines[iMachine].name == name ) {
+                    console.log( machines[iMachine].status );
+                    console.log( machines[iMachine].status );
+                    console.log( machines[iMachine].status );
+                    console.log( machines[iMachine].status );
+                    console.log( machines[iMachine].status );
+                    $(".build-status").text( machines[iMachine].status );
+                }
+            }
         }
 
     </script>

@@ -2,7 +2,7 @@
     <div class="row">
         <div class="span3">
             <h1><%- machine.name %></h1>
-            <h3>Status: <%- machine.status %></h3>
+            <h3>Status: <span class="build-status"><%- machine.status %></span></h3>
             <button type="submit" class="btn btn-primary restart-build-button">Restart Build</button>
         </div>
     </div>
@@ -17,11 +17,11 @@
     <div id="tabContent" class="tab-content">
     	<div class="tab-pane active in" id="info">
             <div class="span2">
-                <button type="submit" class="btn">Launch Build</button>
+                <button type="submit" class="btn launch-build-button">Launch Build</button>
             </div>
 
             <div class="span3">
-                <select name="type" id="type">
+                <select name="type" id="type-dropdown">
                     <% _.each( builds, function(info, iBuild) { %>
                         <option value="<%- info.name %>"><%- info.name %></option>
                     <% }); %>
@@ -33,10 +33,15 @@
             </div>
     	</div>
     	<div class="tab-pane fade" id="history">
-    		<ul class="machine-build-list">
-                <% _.each( builds, function(info, iBuild) { %>
+    		<ul class="machine-build-history-list">
+                <% _.each( machine.history, function(info, iBuild) { %>
                     <li class="well">
-                        <%- info.name %>
+                        <div class="span1">
+                            <%- info.build %>
+                        </div>
+                        <div class="span2">
+                            Duration: <%- ((info.end - info.start)/60000).toFixed(2) %> min
+                        </div>                        
                     </li>
                 <% }); %>
             </ul>       
@@ -46,7 +51,16 @@
 
 <script>
     $(".restart-build-button").click( function() {
-        socket.post( "/machines/<%- machine.name %>/launch/test", function(data) {
+        console.log( "Restarting build " + "<%- machine.history[0].build %>" );
+        socket.post( "/machines/<%- machine.name %>/launch/<%- machine.history[0].build %>", function(data) {
+            console.log( "Response" );
+            console.log( data );
+        });
+    });
+
+    $(".launch-build-button").click( function() {
+        console.log( "Restarting build " + $("#type-dropdown").get(0).value );
+        socket.post( "/machines/<%- machine.name %>/launch/" + $("#type-dropdown").get(0).value, function(data) {
             console.log( "Response" );
             console.log( data );
         });
