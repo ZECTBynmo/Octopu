@@ -63,14 +63,24 @@ function launchBuild( command, name ) {
 
 	// Create a child process
 	console.log( "Starting build" );
-	console.log( "node " + __dirname + "/test.js" );
-	runningBuilds[name] = spawnCommand( "node " + __dirname + "/test.js" );
+	console.log( command );
+	runningBuilds[name] = spawnCommand( command );
+
+	runningBuilds[name].stdout.on( "data", function(data) {
+		console.log( data.toString() );
+	});
+
+	runningBuilds[name].stderr.on( "data", function(data) {
+		console.log( data.toString() );
+	});
 
 	// Catch exit events
 	runningBuilds[name].on( "exit", function(code) {
 		console.log( "Build finished" );
 		if( managerSocket != undefined ) {
 			managerSocket.emit( "finished", {name:name} );
+		} else {
+			console.log( "Manager socket undefined" );
 		}
 	});
 }
@@ -161,6 +171,7 @@ function connectToManager( url ) {
 		});
 
 		socket.on('launch', function(data) {
+
 			launchBuild( data.command, data.name );
 		});
 
