@@ -1,6 +1,6 @@
 {
   "name": "octopu",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Flexible build system written in node.js",
   "dependencies": {
     "sails": "~0.9.8",
@@ -15,7 +15,7 @@
     "octopu": "./octopu.js"
   },
   "main": "./octopu",
-  "repository": "",
+  "repository": "git@github.com:ZECTBynmo/Octopu.git",
   "author": "Mike Vegeto (michael.vegeto@gmail.com)",
   "license": "MIT",
   "readmeFilename": "README.md",
