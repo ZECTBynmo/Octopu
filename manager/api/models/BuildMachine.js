@@ -31,6 +31,12 @@ module.exports = {
             defaultsTo: false,
             required:   true,
         },
+
+        "history": {
+            type:       'array',
+            required:   true,
+            defaultsTo: [],
+        }
 	}
 
 };
